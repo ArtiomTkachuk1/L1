@@ -1,22 +1,14 @@
-﻿/*
- * Created by SharpDevelop.
- * User: guyver
- * Date: 23.01.2018
- * Time: 16:38
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
 
 namespace Functions
 {
-	class Function
+	public class Function
 	{
 		public Function()
 		{
 
 		}
-		public double Simpson(double a, double b, int n)
+		/*public double Simpson(double a, double b, int n)
 		{
 			double h = (b - a) / n;
 			double k1 = 0, k2 = 0;
@@ -47,7 +39,7 @@ namespace Functions
 				}
 			}
 			return (a+b)/2;
-		}
+		}*/
 		public virtual string ToString()
 		{
 			return "abstract";
@@ -353,6 +345,41 @@ namespace Functions
 		}
 
 	}
+	public static class CM
+	{
+		public static double Simpson(double a, double b, uint n, Function F)
+		{
+			double h = (b - a) / n;
+			double k1 = 0, k2 = 0;
+			for (int i = 1; i < n; i += 2)
+			{
+				k1 += F.Calc(a + i * h);
+				k2 += F.Calc(a + (i + 1) * h);
+			}
+			return h / 3 * (F.Calc(a) + 4 * k1 + 2 * k2);
+		}
+		public static double HalfDiv(double a, double b, double sigma, uint n, Function F)
+		{
+			double f_a = F.Calc(a);
+			double f_b = F.Calc(b);
+			for (int i = 1; (i < n) && ((b - a) > sigma); i += 2)
+			{
+				double xm = (a + b) / 2;
+				double f_xm = F.Calc(xm);
+				if ((f_a * f_xm) <= 0)
+				{
+					a = xm;
+					f_a = f_xm;
+				}
+				else
+				{
+					b = xm;
+					f_b = f_xm;
+				}
+			}
+			return (a + b) / 2;
+		}
+	}
 	class Program
 	{
 		
@@ -377,8 +404,8 @@ namespace Functions
 			Console.WriteLine(f3.ToString());
 			Console.WriteLine(f3.Diff().ToString());
 			Console.WriteLine(f3.Diff().Calc(x));
-			Console.WriteLine(f3.Simpson(2, 10, 1000));
-			Console.WriteLine(f3.HalfDiv(2, 10, 0.1, 1000));
+			Console.WriteLine(CM.Simpson(2, 10, 1000,f3));
+			Console.WriteLine(CM.HalfDiv(2, 10, 0.1, 1000,f3));
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
 		}
