@@ -16,23 +16,37 @@ namespace Functions
 		{
 
 		}
-		public double Simpson(double a, double b, double eps, Function F)
+		public double Simpson(double a, double b, int n)
 		{
-			double I = eps + 1, I1 = 0;//I-предыдущее вычисленное значение интеграла, I1-новое, с большим N.
-			for (int N = 2; (N <= 4) || (Math.Abs(I1 - I) > eps); N *= 2)
+			double h = (b - a) / n;
+			double k1 = 0, k2 = 0;
+			for (int i = 1; i < n; i += 2)
 			{
-				double h, sum2 = 0, sum4 = 0, sum = 0;
-				h = (b - a) / (2 * N);//Шаг интегрирования.
-				for (int i = 1; i <= 2 * N - 1; i += 2)
-				{
-					sum4 += F.Calc(a + h * i);//Значения с нечётными индексами, которые нужно умножить на 4.
-					sum2 += F.Calc(a + h * (i + 1));//Значения с чётными индексами, которые нужно умножить на 2.
-				}
-				sum = F.Calc(a) + 4 * sum4 + 2 * sum2 - F.Calc(b);//Отнимаем значение f(b) так как ранее прибавили его дважды. 
-				I = I1;
-				I1 = (h / 3) * sum;
+				k1 += this.Calc(a + i * h);
+				k2 += this.Calc(a + (i + 1) * h);
 			}
-			return I1;
+			return h / 3 * (this.Calc(a) + 4 * k1 + 2 * k2);
+		}
+		public double HalfDiv(double a, double b, double sigma, int n)
+		{
+			double f_a = this.Calc(a);
+			double f_b = this.Calc(b);
+			for (int i = 1; (i < n)&&((b - a) >sigma); i += 2)
+			{
+				double xm = (a + b) / 2;
+				double f_xm = this.Calc(xm);
+				if ((f_a * f_xm) <= 0)
+				{
+					a = xm;
+					f_a = f_xm;
+				}
+				else
+				{
+					b = xm;
+					f_b = f_xm;
+				}
+			}
+			return (a+b)/2;
 		}
 		public virtual string ToString()
 		{
@@ -363,7 +377,8 @@ namespace Functions
 			Console.WriteLine(f3.ToString());
 			Console.WriteLine(f3.Diff().ToString());
 			Console.WriteLine(f3.Diff().Calc(x));
-			Console.WriteLine(f3.Simpson(2, 10, 1,f3));
+			Console.WriteLine(f3.Simpson(2, 10, 1000));
+			Console.WriteLine(f3.HalfDiv(2, 10, 0.1, 1000));
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
 		}
